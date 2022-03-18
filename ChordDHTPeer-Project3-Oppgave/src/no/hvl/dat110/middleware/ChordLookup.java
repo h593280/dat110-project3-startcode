@@ -5,6 +5,7 @@ package no.hvl.dat110.middleware;
 
 import java.math.BigInteger;
 import java.rmi.RemoteException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,20 +29,23 @@ public class ChordLookup {
 	public NodeInterface findSuccessor(BigInteger key) throws RemoteException {
 		
 		// ask this node to find the successor of key
-		
+		NodeInterface temp = node.findSuccessor(key);
 		// get the successor of the node
-		
+		NodeInterface succsessor = temp.getSuccessor();
 		// get the stub for this successor (Util.getProcessStub())
-		
+		temp = Util.getProcessStub(temp.getNodeName(), temp.getPort());
 		// check that key is a member of the set {nodeid+1,...,succID} i.e. (nodeid+1 <= key <= succID) using the ComputeLogic
-		
+		Boolean check = Util.computeLogic(key, node.getNodeID(), succsessor.getNodeID());
 		// if logic returns true, then return the successor
-		
+		if(check) {
+			return succsessor;
+		} else if(!check) {
 		// if logic returns false; call findHighestPredecessor(key)
-		
+		findHighestPredecessor(key);
+		}
 		// do return highest_pred.findSuccessor(key) - This is a recursive call until logic returns true
 				
-		return null;					
+		return findHighestPredecessor(key).findSuccessor(key);					
 	}
 	
 	/**
@@ -65,7 +69,7 @@ public class ChordLookup {
 		return (NodeInterface) node;			
 	}
 	
-	public void copyKeysFromSuccessor(NodeInterface succ) {
+	public void copyKeysFromSuccessor(NodeInterface succ) throws NoSuchAlgorithmException {
 		
 		Set<BigInteger> filekeys;
 		try {
