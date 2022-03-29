@@ -33,7 +33,7 @@ public class Hash {
 		}
 		hashint = new BigInteger(sb.toString(), 16);
 		// return the BigInteger
-		
+		 
 		return hashint;
 	}
 	

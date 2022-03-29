@@ -6,11 +6,12 @@ package no.hvl.dat110.util;
  * @author tdoy
  */
 
-import java.math.BigInteger;
+import java.math.BigInteger; 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,7 +26,7 @@ public class Util {
 	 
 	public static String activeIP = null;
 	public static int numReplicas = 4;  
-	
+	 
 	/**
 	 * This method computes (lower <= id <= upper).
 	 * To use this method to compute (lower < id <= upper), ensure that the calling method increased the lower param by 1.
@@ -34,24 +35,45 @@ public class Util {
 	 * @param id
 	 * @param lower
 	 * @param upper
-	 * @return true if (lower <= id <= upper) or false otherwise
+	 * @return true if (lower <= id <= upper) or false otherwise 
 	 */
 	public static boolean computeLogic(BigInteger id, BigInteger lower, BigInteger upper) {
+		
 		
 		// a formula to check whether an id falls within the set {lower, upper} using the address size as our bound (modulos operation)
 		// it modifies 'upper' and 'id' when lower > upper e.g. set (6, 2) in mod 10 = {6, 7, 8, 9, 0, 1, 2}
 		
 		// implement: read the descriptions above
-		int x = id.compareTo(lower);
-		int y = id.compareTo(upper);
 		
-		boolean cond = false;
+		//id = { id.....}
 		
-		if(x >= 0 && y <= 0) {
-			cond = true;
-		}
 		
-		return cond;
+	 
+	// (lower <= id <= upper)
+	
+	boolean lowerId = (lower.compareTo(id) <= 0); 
+	boolean upperId = (id.compareTo(upper) <= 0);
+	
+ 
+	// (upper >= id >= lower)
+	boolean idUpper = (upper.compareTo(id) >= 0);
+	boolean idLower = (id.compareTo(lower) >= 0); 
+
+	
+	if(lowerId && upperId) {
+	return true;
+	} 
+		
+	if(lower.compareTo(upper) > 0) {
+	
+	if(idUpper || idLower) {
+		return true;
+	}
+		
+	}
+	
+	return false;
+	
 	}
 	
 	public static List<String> toString(List<NodeInterface> list) throws RemoteException {
