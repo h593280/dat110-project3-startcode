@@ -33,7 +33,7 @@ public class FileManager {
 	private byte[] bytesOfFile;
 	private String sizeOfByte;
 	
-	private Set<Message> activeNodesforFile = null;
+	private Set<Message> activeNodesforFile = null; 
 	
 	public FileManager(NodeInterface chordnode) throws RemoteException {
 		this.chordnode = chordnode;
@@ -191,7 +191,7 @@ public class FileManager {
 	public int getNumReplicas() {
 		return numReplicas;
 	}
-	
+	 
 	/**
 	 * @return the filename
 	 */
