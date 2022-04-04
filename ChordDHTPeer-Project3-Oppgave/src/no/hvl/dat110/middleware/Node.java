@@ -126,7 +126,9 @@ public class Node extends UnicastRemoteObject implements NodeInterface {
 	@Override
 	public NodeInterface findSuccessor(BigInteger key) throws RemoteException {
 		// ask this node to find the successor of id
+		
 		return lookup.findSuccessor(key);
+	
 	}
 	
 	//@Override
