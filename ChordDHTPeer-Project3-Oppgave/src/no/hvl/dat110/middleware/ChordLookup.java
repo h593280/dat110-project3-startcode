@@ -28,25 +28,31 @@ public class ChordLookup {
 	
 	public NodeInterface findSuccessor(BigInteger key) throws RemoteException {
 		
-		// ask this node to find the successor of key
-		NodeInterface temp = node.findSuccessor(key);
+	    // ask this node to find the successor of key
 		// get the successor of the node
-		NodeInterface succsessor = temp.getSuccessor();
+		NodeInterface succ = node.getSuccessor();
+		
 		// get the stub for this successor (Util.getProcessStub())
-		temp = Util.getProcessStub(temp.getNodeName(), temp.getPort());
+		NodeInterface stub = Util.getProcessStub(succ.getNodeName(), succ.getPort());
+		
 		// check that key is a member of the set {nodeid+1,...,succID} i.e. (nodeid+1 <= key <= succID) using the ComputeLogic
-		Boolean check = Util.computeLogic(key, node.getNodeID().add(new BigInteger("1")), succId);
+		
 		// if logic returns true, then return the successor
-		if(check) {
-			return succsessor;
-		} else if(!check) {
 		// if logic returns false; call findHighestPredecessor(key)
-		findHighestPredecessor(key);
+		
+		if(stub != null) {
+			if(Util.computeLogic(key, node.getNodeID().add(new BigInteger("1")), succ.getNodeID())) {
+				return succ;	
+			}  else {
+			NodeInterface highest_pred = findHighestPredecessor(key);
+			// do return highest_pred.findSuccessor(key) - This is a recursive call until logic returns true
+		  return highest_pred.findSuccessor(key);
+	     }
 		}
-		// do return highest_pred.findSuccessor(key) - This is a recursive call until logic returns true
-				
-		return findHighestPredecessor(key).findSuccessor(key);					
+	
+	return null;	
 	}
+		
 	
 	/**
 	 * This method makes a remote call. Invoked from a local client
@@ -55,31 +61,35 @@ public class ChordLookup {
 	 * @throws RemoteException
 	 * @throws NoSuchAlgorithmException 
 	 */
-	private NodeInterface findHighestPredecessor(BigInteger key) throws RemoteException, NoSuchAlgorithmException {
+	private NodeInterface findHighestPredecessor(BigInteger key) throws RemoteException {
 		
-		// collect the entries in the finger table for this node
-		List<NodeInterface> entries = node.getFingerTable();
-		// starting from the last entry, iterate over the finger table
-		for (int i = entries.size(); i > 0; i--) {
-			
-			// for each finger, obtain a stub from the registry
-			NodeInterface finger = entries.get(i);
-			NodeInterface stub = Util.getProcessStub(node.getNodeName(), finger.getPort());
-	
-			// check that finger is a member of the set {nodeID+1,...,ID-1} i.e. (nodeID+1 <= finger <= key-1) using the ComputeLogic
-			boolean check = Util.computeLogic(stub.getNodeID(), node.getNodeID(), key);
-			if(check) {
-				return stub;
-			}
-			
-		}
-		
-		// if logic returns true, then return the finger (means finger is the closest to key)
-		
-		return (NodeInterface) node;			
+		        // collect the entries in the finger table for this node
+		        List<NodeInterface> fingertab = node.getFingerTable();
+				// starting from the last entry, iterate over the finger table
+				for(int i = fingertab.size() - 1; i >= 0; i--) {
+					
+					// for each finger, obtain a stub from the registry
+					NodeInterface finger = fingertab.get(i);
+					NodeInterface fingerStub = Util.getProcessStub(finger.getNodeName(), finger.getPort());
+					
+					// check that finger is a member of the set {nodeID+1,...,ID-1} i.e. (nodeID+1 <= finger <= key-1) using the ComputeLogic
+					// if logic returns true, then return the finger (means finger is the closest to key)	
+					
+					BigInteger nodeplus1 = node.getNodeID().add(new BigInteger("1"));
+					BigInteger keyminus1 =  key.subtract(new BigInteger("1"));
+					
+					if(Util.computeLogic(fingerStub.getNodeID(), nodeplus1, keyminus1)) {
+						return (NodeInterface) fingerStub;
+					}
+					
+					
+				}
+				
+					
+				return (NodeInterface) node;				
 	}
 	
-	public void copyKeysFromSuccessor(NodeInterface succ) throws NoSuchAlgorithmException {
+	public void copyKeysFromSuccessor(NodeInterface succ) {
 		
 		Set<BigInteger> filekeys;
 		try {

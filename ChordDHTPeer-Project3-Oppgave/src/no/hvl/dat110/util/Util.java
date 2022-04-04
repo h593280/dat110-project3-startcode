@@ -50,7 +50,6 @@ public class Util {
 		
 	 
 	// (lower <= id <= upper)
-	
 	boolean lowerId = (lower.compareTo(id) <= 0); 
 	boolean upperId = (id.compareTo(upper) <= 0);
 	
@@ -59,13 +58,12 @@ public class Util {
 	boolean idUpper = (upper.compareTo(id) >= 0);
 	boolean idLower = (id.compareTo(lower) >= 0); 
 
-	
+	 
 	if(lowerId && upperId) {
 	return true;
 	} 
 		
 	if(lower.compareTo(upper) > 0) {
-	
 	if(idUpper || idLower) {
 		return true;
 	}
@@ -132,7 +130,7 @@ public class Util {
 		}
 		
 		return registry;
-
+ 
 	}
 	
 	public static Map<String, Integer> getProcesses(){
