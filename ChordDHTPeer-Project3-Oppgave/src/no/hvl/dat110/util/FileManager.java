@@ -5,7 +5,7 @@ package no.hvl.dat110.util;
  * dat110 - project 3
  */
 
-import java.io.File;
+import java.io.File ;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
