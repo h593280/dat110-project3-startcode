@@ -16,7 +16,6 @@ import no.hvl.dat110.util.Util;
 
 /**
  * @author tdoy
- *
  */
 public class ChordLookup {
 

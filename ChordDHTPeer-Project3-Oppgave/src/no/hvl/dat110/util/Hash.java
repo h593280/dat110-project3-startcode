@@ -40,8 +40,8 @@ public class Hash {
 			e.printStackTrace();
 		}
 		
-		 
 		return hashint;
+		
 	}
 	
 	public static BigInteger addressSize() {
