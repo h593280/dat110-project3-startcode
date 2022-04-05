@@ -5,6 +5,7 @@ package no.hvl.dat110.middleware;
 
 import java.math.BigInteger;
 import java.rmi.RemoteException;
+import java.security.Permission;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -18,37 +19,38 @@ import no.hvl.dat110.util.Util;
  *
  */
 public class MutualExclusion {
-		
+
 	/** lock variables */
-	private boolean CS_BUSY = false;						// indicate to be in critical section (accessing a shared resource) 
-	private boolean WANTS_TO_ENTER_CS = false;				// indicate to want to enter CS
-	private List<Message> queueack; 						// queue for acknowledged messages
-	private List<Message> mutexqueue;						// queue for storing process that are denied permission. We really don't need this for quorum-protocol
-	
-	private LamportClock clock;								// lamport clock
+	private boolean CS_BUSY = false; // indicate to be in critical section (accessing a shared resource)
+	private boolean WANTS_TO_ENTER_CS = false; // indicate to want to enter CS
+	private List<Message> queueack; // queue for acknowledged messages
+	private List<Message> mutexqueue; // queue for storing process that are denied permission. We really don't need
+										// this for quorum-protocol
+
+	private LamportClock clock; // lamport clock
 	private Node node;
-	
+
 	public MutualExclusion(Node node) throws RemoteException {
 		this.node = node;
-		
+
 		clock = new LamportClock();
 		queueack = new ArrayList<Message>();
 		mutexqueue = new ArrayList<Message>();
 	}
-	
+
 	public void acquireLock() {
 		CS_BUSY = true;
 	}
-	
+
 	public void releaseLocks() {
 		WANTS_TO_ENTER_CS = false;
 		CS_BUSY = false;
 	}
 
 	public boolean doMutexRequest(Message message, byte[] updates) throws RemoteException {
-		
+
 		System.out.println(node.nodename + " wants to access CS");
-		
+
 		// clear the queueack before requesting for votes
 		queueack.clear();
 		
@@ -93,7 +95,7 @@ public class MutualExclusion {
 	
 	// multicast message to other processes including self
 	private void multicastMessage(Message message, List<Message> activenodes) throws RemoteException {
-		
+
 		// iterate over the activenodes
 		
 		// obtain a stub for each node from the registry
@@ -108,9 +110,9 @@ public class MutualExclusion {
 		
 		
 	}
-	
+
 	public void onMutexRequestReceived(Message message) throws RemoteException {
-		
+
 		// increment the local clock
 		clock.increment();
 		
@@ -143,7 +145,7 @@ public class MutualExclusion {
 		// check for decision
 		doDecisionAlgorithm(message, mutexqueue, caseid);
 	}
-	
+
 	public void doDecisionAlgorithm(Message message, List<Message> queue, int condition) throws RemoteException {
 		
 		String procName = message.getNodeIP();			// this is the same as nodeName in the Node class
@@ -160,11 +162,9 @@ public class MutualExclusion {
 				// send acknowledgement back by calling onMutexAcknowledgementReceived()
 				stub.onMutexAcknowledgementReceived(message);
 				
-				break;
-			}
-		
-			/** case 2: Receiver already has access to the resource (dont reply but queue the request) */
-			case 1: {
+				message.setAcknowledged(wincheck);
+				NodeInterface stub = Util.getProcessStub(message.getNodeIP(), message.getPort());
+				stub.onMutexAcknowledgementReceived(message);
 				
 				// queue this message
 				queue.add(message);
@@ -204,24 +204,22 @@ public class MutualExclusion {
 				
 				
 
-				break;
-			}
-			
-			default: break;
+		default:
+			break;
 		}
-		
+
 	}
-	
+
 	public void onMutexAcknowledgementReceived(Message message) throws RemoteException {
-		
+
 		// add message to queueack
 		queueack.add(message);
 		
 	}
-	
+
 	// multicast release locks message to other processes including self
 	public void multicastReleaseLocks(Set<Message> activenodes) {
-		
+
 		// iterate over the activenodes
 		
 		for (Message m : activenodes) {
@@ -239,7 +237,7 @@ public class MutualExclusion {
 		// call releaseLocks()
 	
 	}
-	
+
 	private boolean areAllMessagesReturned(int numvoters) throws RemoteException {
 		// check if the size of the queueack is same as the numvoters
 		
@@ -253,23 +251,20 @@ public class MutualExclusion {
 		}
 		
 
-		return false;
-	}
-	
 	private List<Message> removeDuplicatePeersBeforeVoting() {
-		
+
 		List<Message> uniquepeer = new ArrayList<Message>();
-		for(Message p : node.activenodesforfile) {
+		for (Message p : node.activenodesforfile) {
 			boolean found = false;
-			for(Message p1 : uniquepeer) {
-				if(p.getNodeIP().equals(p1.getNodeIP())) {
+			for (Message p1 : uniquepeer) {
+				if (p.getNodeIP().equals(p1.getNodeIP())) {
 					found = true;
 					break;
 				}
 			}
-			if(!found)
+			if (!found)
 				uniquepeer.add(p);
-		}		
+		}
 		return uniquepeer;
 	}
 }

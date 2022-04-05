@@ -122,12 +122,13 @@ public class FileManager {
 		// generate the N replicas from the filename by calling createReplicaFiles()
 		createReplicaFiles();
 		// it means, iterate over the replicas of the file
-		for(BigInteger File : replicafiles) {
-		// for each replica, do findSuccessor(replica) that returns successor s.
+		for (BigInteger File : replicafiles) {
+			// for each replica, do findSuccessor(replica) that returns successor s.
 			NodeInterface succ = chordnode.findSuccessor(File);
-		// get the metadata (Message) of the replica from the successor, s (i.e. active peer) of the file
+			// get the metadata (Message) of the replica from the successor, s (i.e. active
+			// peer) of the file
 			Message m = succ.getFilesMetadata(File);
-			
+
 			succinfo.add(m);
 		}
 		// save the metadata in the set succinfo.
@@ -146,7 +147,6 @@ public class FileManager {
 
 		// Task: Given all the active peers of a file (activeNodesforFile()), find which
 		// is holding the primary copy
-
 		// iterate over the activeNodesforFile
 		
 		for (Message m : activeNodesforFile) {
