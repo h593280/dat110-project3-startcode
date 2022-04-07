@@ -77,7 +77,7 @@ public class ChordLookup {
 					BigInteger nodeplus1 = node.getNodeID().add(new BigInteger("1"));
 					BigInteger keyminus1 =  key.subtract(new BigInteger("1"));
 					
-					if(Util.computeLogic(nodeplus1,fingerStub.getNodeID(), keyminus1)) {
+					if(Util.computeLogic(fingerStub.getNodeID(),nodeplus1, keyminus1)) {
 						return (NodeInterface) fingerStub;
 					}
 					
