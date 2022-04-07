@@ -161,11 +161,9 @@ public class MutualExclusion {
 				message.setAcknowledged(true);
 				// send acknowledgement back by calling onMutexAcknowledgementReceived()
 				stub.onMutexAcknowledgementReceived(message);
-				
-				message.setAcknowledged(wincheck);
-				NodeInterface stub = Util.getProcessStub(message.getNodeIP(), message.getPort());
-				stub.onMutexAcknowledgementReceived(message);
-				
+				break;
+			}
+			case 1:{
 				// queue this message
 				queue.add(message);
 				break;
@@ -201,6 +199,8 @@ public class MutualExclusion {
 					message.setAcknowledged(true);
 					stub.onMutexAcknowledgementReceived(message);
 				}
+				break;
+			}
 				
 				
 
@@ -249,6 +249,8 @@ public class MutualExclusion {
 			queueack.clear();
 			return true;
 		}
+		return false;
+	}
 		
 
 	private List<Message> removeDuplicatePeersBeforeVoting() {

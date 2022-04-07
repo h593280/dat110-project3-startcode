@@ -40,7 +40,7 @@ public class ChordLookup {
 		// if logic returns false; call findHighestPredecessor(key)
 		
 		if(stub != null) {
-			if(Util.computeLogic(node.getNodeID().add(new BigInteger("1")),key, succ.getNodeID())) {
+			if(Util.computeLogic(key,node.getNodeID().add(new BigInteger("1")), succ.getNodeID())) {
 				return succ;	
 			}  else {
 			NodeInterface highest_pred = findHighestPredecessor(key);
